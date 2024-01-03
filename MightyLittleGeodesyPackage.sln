@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34202.233
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MightyLittleGeodesyPackage", "MightyLittleGeodesyPackage\MightyLittleGeodesyPackage.csproj", "{59C40D99-5D39-46FA-AAE5-DF4B7E8B1680}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MightLittleGeodesyPackageTest", "MightLittleGeodesyPackageTest\MightLittleGeodesyPackageTest.csproj", "{8A39CCA9-5F87-47C0-B055-832E1B13E9C9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{59C40D99-5D39-46FA-AAE5-DF4B7E8B1680}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59C40D99-5D39-46FA-AAE5-DF4B7E8B1680}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59C40D99-5D39-46FA-AAE5-DF4B7E8B1680}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59C40D99-5D39-46FA-AAE5-DF4B7E8B1680}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A39CCA9-5F87-47C0-B055-832E1B13E9C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A39CCA9-5F87-47C0-B055-832E1B13E9C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A39CCA9-5F87-47C0-B055-832E1B13E9C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A39CCA9-5F87-47C0-B055-832E1B13E9C9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {90D0AACA-9988-449D-A5D0-235418A9DEE3}
+	EndGlobalSection
+EndGlobal
