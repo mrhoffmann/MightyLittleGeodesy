@@ -1,0 +1,1 @@
+Just a copy of [MightyLittleGeodesy](https://github.com/bjornsallarp/MightyLittleGeodesy) as a class library.
