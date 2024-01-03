@@ -4,10 +4,70 @@ namespace MightyLittleGeodesyTests
     using MightyLittleGeodesy.Classes;
     using MightyLittleGeodesy.Positions;
     using System;
+    using System.Diagnostics;
 
     [TestClass]
     public class ConversionTests
     {
+        #region Known points
+        [TestMethod]
+        public void TestKnownPoints()
+        {
+            double[,] knownPoints = {
+                { 59.3306, 18.0596 },  //   Stockholm Centralstation
+                { 59.3275, 18.0719 },  //           Kungliga slottet
+                { 59.3258, 18.1025 },  //                    Skansen
+                { 59.3280, 18.0919 },  //                 Vasamuseet
+                { 59.3257, 18.0719 }   //                 Gamla Stan
+            };
+            double[,] correctAnswers = //          in order of above
+            {
+                { 6581036, 1628315 },
+                { 6580715, 1629027 },
+                { 6580585, 1630775 },
+                { 6580809, 1630163 },
+                { 6580514, 1629034 }
+            };
+            var gaussKreuger = new GaussKreuger();
+            gaussKreuger.swedishParams("rt90_2.5_gon_v");
+
+            for (int i = 0; i < knownPoints.GetLength(0); i++)
+            {
+                var wgs84Latitude = knownPoints[i, 0];
+                var wgs84Longitude = knownPoints[i, 1];
+
+                var rt90Coordinates = gaussKreuger.geodetic_to_grid(wgs84Latitude, wgs84Longitude);
+
+                var easting = rt90Coordinates[0];
+                var northing = rt90Coordinates[1];
+                var actualEasting = correctAnswers[i, 0];
+                var actualNorthing = correctAnswers[i, 1];
+
+                Assert.AreEqual(Math.Round(easting, 0), actualEasting);
+                Assert.AreEqual(Math.Round(northing, 0), actualNorthing);
+
+                //validate the range to make sure that the conversion of rt90 was okay
+                Assert.IsTrue(easting >= 6110000 && easting <= 7680000);
+                Assert.IsTrue(northing >= 1200000 && northing <= 1900000);
+
+                var convertedWGS84 = gaussKreuger.grid_to_geodetic(easting, northing);
+
+                var latitudeDifference = wgs84Latitude - convertedWGS84[0];
+                var longitudeDifference = wgs84Longitude - convertedWGS84[1];
+                var tolerance = 0.00018; //about 20 cm (7.87 inches)
+
+                Assert.IsTrue(Math.Abs(latitudeDifference) < tolerance && Math.Abs(longitudeDifference) < tolerance);
+
+                //it shouldnt be possible for them to equal the original value, make sure that is true
+                var wgs84 = new WGS84Position(convertedWGS84[0], convertedWGS84[1]);
+                Assert.AreNotEqual(wgs84Latitude, wgs84.Latitude);
+                Assert.AreNotEqual(wgs84Longitude, wgs84.Longitude);
+            }
+        }
+
+        #endregion
+
+        #region WGS84
         [TestMethod]
         public void RT90ToWGS84()
         {
@@ -33,6 +93,22 @@ namespace MightyLittleGeodesyTests
             Assert.AreEqual(lonDmsStringFromLM, wgsPos.LongitudeToString(WGS84Position.WGS84Format.DegreesMinutesSeconds));
         }
 
+        [TestMethod]
+        public void WGS84ParseString()
+        {
+            // Values from Eniro.se
+            var wgsPosDM = new WGS84Position("N 62º 10.560' E 015º 54.180'", WGS84Position.WGS84Format.DegreesMinutes);
+            var wgsPosDMs = new WGS84Position("N 62º 10' 33.60\" E 015º 54' 10.80\"", WGS84Position.WGS84Format.DegreesMinutesSeconds);
+
+            Assert.AreEqual(62.176, Math.Round(wgsPosDM.Latitude, 3));
+            Assert.AreEqual(15.903, Math.Round(wgsPosDM.Longitude, 3));
+
+            Assert.AreEqual(62.176, Math.Round(wgsPosDMs.Latitude, 3));
+            Assert.AreEqual(15.903, Math.Round(wgsPosDMs.Longitude, 3));
+        }
+        #endregion
+
+        #region RT90
         [TestMethod]
         public void WGS84ToRT90()
         {
@@ -73,7 +149,9 @@ namespace MightyLittleGeodesyTests
             Assert.AreEqual(Math.Round(wgsBack.Longitude, MidpointRounding.ToEven), expectedLon);
             Assert.AreEqual(Math.Round(wgsBack.Latitude, MidpointRounding.ToEven), expectedLat);
         }
+        #endregion
 
+        #region SWEREF99 TM
         [TestMethod]
         public void WGS84ToSweref()
         {
@@ -107,19 +185,6 @@ namespace MightyLittleGeodesyTests
             Assert.AreEqual(latDmsStringFromLM, wgsPos.LatitudeToString(WGS84Position.WGS84Format.DegreesMinutesSeconds));
             Assert.AreEqual(lonDmsStringFromLM, wgsPos.LongitudeToString(WGS84Position.WGS84Format.DegreesMinutesSeconds));
         }
-
-        [TestMethod]
-        public void WGS84ParseString()
-        {
-            // Values from Eniro.se
-            var wgsPosDM = new WGS84Position("N 62º 10.560' E 015º 54.180'", WGS84Position.WGS84Format.DegreesMinutes);
-            var wgsPosDMs = new WGS84Position("N 62º 10' 33.60\" E 015º 54' 10.80\"", WGS84Position.WGS84Format.DegreesMinutesSeconds);
-
-            Assert.AreEqual(62.176, Math.Round(wgsPosDM.Latitude, 3));
-            Assert.AreEqual(15.903, Math.Round(wgsPosDM.Longitude, 3));
-
-            Assert.AreEqual(62.176, Math.Round(wgsPosDMs.Latitude, 3));
-            Assert.AreEqual(15.903, Math.Round(wgsPosDMs.Longitude, 3));
-        }
+        #endregion
     }
 }
