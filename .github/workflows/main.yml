@@ -3,32 +3,45 @@ name: dotnet package
 on: [push]
 
 jobs:
-  build:
-
+  build_projectA:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        dotnet-version: [ '6.0.x' ]
-
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '6.0.x'
-      - name: Install dependencies
-        run: dotnet restore
-      - name: Build and pack
-        run: dotnet build -c Release -o ./output
-        working-directory: ./MightyLittleGeodesyPackage
-      - name: Publish artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: dll
-          path: ./output/*.dll 
-      - name: Build
-        run: dotnet build
-      - name: Test with the dotnet CLI
-        run: |
-          dotnet build -c Release
-          dotnet test -c Release --no-build
+    - name: Checkout ProjectA
+      uses: actions/checkout@v2
+    - name: Setup .NET for ProjectA
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.x'  # Adjust version if needed
+    - name: Restore dependencies for ProjectA
+      run: dotnet restore
+    - name: Build ProjectA
+      run: dotnet build -c Release -o ./output
+      working-directory: ./ProjectA
+    - name: Publish artifact from MightyLittleGeodesyPackage
+      uses: actions/upload-artifact@v2
+      with:
+        name: MightyLittleGeodesyPackage-artifact
+        path: ./MightyLittleGeodesyPackage/output/*.dll
+
+  build_projectB:
+    runs-on: ubuntu-latest
+    needs: build_projectA  # Make sure ProjectA is built before ProjectB
+    steps:
+    - name: Checkout ProjectB
+      uses: actions/checkout@v2
+    - name: Setup .NET for MightyLittleGeodesyPackageTest
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.x'  # Adjust version if needed
+    - name: Download artifact from MightyLittleGeodesyPackageTest
+      uses: actions/download-artifact@v2
+      with:
+        name: MightyLittleGeodesyPackageTest-artifact
+        path: ./MightyLittleGeodesyPackageTest/input  # Copy the artifact to ProjectB's input folder
+    - name: Build ProjectB
+      run: dotnet build -c Release
+      working-directory: ./ProjectB
+      
+    - name: Run tests for MightyLittleGeodesyPackageTest
+      run: dotnet test -c Release
+      working-directory: ./MightyLittleGeodesyPackageTest
