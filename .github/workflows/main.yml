@@ -41,7 +41,6 @@ jobs:
     - name: Build MightyLittleGeodesyPackageTest
       run: dotnet build -c Release
       working-directory: ./MightyLittleGeodesyPackageTest
-      
     - name: Run tests for MightyLittleGeodesyPackageTest
       run: dotnet test -c Release
-      working-directory: ./MightyLittleGeodesyPackageTest
+      working-directory: ./
