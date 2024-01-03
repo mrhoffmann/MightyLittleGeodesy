@@ -39,7 +39,7 @@ jobs:
         name: MightyLittleGeodesyPackage-artifact
         path: ./MightyLittleGeodesyPackageTest/input  # Copy the artifact to ProjectB's input folder
     - name: Build MightyLittleGeodesyPackageTest
-      run: dotnet build -c Release
+      run: dotnet build MightyLittleGeodesyPackage.sln -c Release
       working-directory: ./MightyLittleGeodesyPackageTest
     - name: Run tests for MightyLittleGeodesyPackageTest
       run: dotnet test -c Release
