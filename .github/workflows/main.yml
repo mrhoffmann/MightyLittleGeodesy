@@ -18,6 +18,14 @@ jobs:
           dotnet-version: '6.0.x'
       - name: Install dependencies
         run: dotnet restore
+      - name: Build and pack
+        run: dotnet build -c Release -o ./output
+        working-directory: ./MightyLittleGeodesyPackage
+      - name: Publish artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: dll
+          path: ./output/*.dll 
       - name: Build
         run: dotnet build
       - name: Test with the dotnet CLI
