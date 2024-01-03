@@ -6,17 +6,17 @@ jobs:
   build_projectA:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout ProjectA
+    - name: Checkout MightyLittleGeodesyPackage
       uses: actions/checkout@v2
-    - name: Setup .NET for ProjectA
+    - name: Setup .NET for MightyLittleGeodesyPackage
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '6.0.x'  # Adjust version if needed
-    - name: Restore dependencies for ProjectA
+    - name: Restore dependencies for MightyLittleGeodesyPackage
       run: dotnet restore
     - name: Build ProjectA
       run: dotnet build -c Release -o ./output
-      working-directory: ./ProjectA
+      working-directory: ./MightyLittleGeodesyPackage
     - name: Publish artifact from MightyLittleGeodesyPackage
       uses: actions/upload-artifact@v2
       with:
@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_projectA  # Make sure ProjectA is built before ProjectB
     steps:
-    - name: Checkout ProjectB
+    - name: Checkout MightyLittleGeodesyPackageTest
       uses: actions/checkout@v2
     - name: Setup .NET for MightyLittleGeodesyPackageTest
       uses: actions/setup-dotnet@v1
@@ -38,9 +38,9 @@ jobs:
       with:
         name: MightyLittleGeodesyPackageTest-artifact
         path: ./MightyLittleGeodesyPackageTest/input  # Copy the artifact to ProjectB's input folder
-    - name: Build ProjectB
+    - name: Build MightyLittleGeodesyPackageTest
       run: dotnet build -c Release
-      working-directory: ./ProjectB
+      working-directory: ./MightyLittleGeodesyPackageTest
       
     - name: Run tests for MightyLittleGeodesyPackageTest
       run: dotnet test -c Release
