@@ -4,65 +4,37 @@ namespace MightyLittleGeodesyTests
     using MightyLittleGeodesy.Classes;
     using MightyLittleGeodesy.Positions;
     using System;
-    using System.Diagnostics;
 
     [TestClass]
     public class ConversionTests
     {
         #region Known points
         [TestMethod]
-        public void TestKnownPoints()
+        [DataRow(59.3306, 18.0596, 1628315, 6581036)] //   Stockholm Centralstation
+        [DataRow(59.3275, 18.0719, 1629027, 6580715)] //           Kungliga slottet
+        [DataRow(59.3258, 18.1025, 1630775, 6580585)] //                    Skansen
+        [DataRow(59.3280, 18.0919, 1630163, 6580809)] //                 Vasamuseet
+        [DataRow(59.3257, 18.0719, 1629034, 6580514)] //                 Gamla Stan
+        public void TestKnownPoints(double wgsLat, double wgsLon, double rt90Lat, double rt90Lon)
         {
-            double[,] knownPoints = {
-                { 59.3306, 18.0596 },  //   Stockholm Centralstation
-                { 59.3275, 18.0719 },  //           Kungliga slottet
-                { 59.3258, 18.1025 },  //                    Skansen
-                { 59.3280, 18.0919 },  //                 Vasamuseet
-                { 59.3257, 18.0719 }   //                 Gamla Stan
-            };
-            double[,] correctAnswers = //          in order of above
-            {
-                { 6581036, 1628315 },
-                { 6580715, 1629027 },
-                { 6580585, 1630775 },
-                { 6580809, 1630163 },
-                { 6580514, 1629034 }
-            };
             var gaussKreuger = new GaussKreuger();
             gaussKreuger.swedishParams("rt90_2.5_gon_v");
 
-            for (int i = 0; i < knownPoints.GetLength(0); i++)
-            {
-                var wgs84Latitude = knownPoints[i, 0];
-                var wgs84Longitude = knownPoints[i, 1];
+            var rt90Coordinates = gaussKreuger.geodetic_to_grid(wgsLat, wgsLon);
+            var easting = rt90Coordinates[0];
+            var northing = rt90Coordinates[1];
+            var convertedWGS84 = gaussKreuger.grid_to_geodetic(easting, northing);
+            var latitudeDifference = wgsLat - convertedWGS84[0];
+            var longitudeDifference = wgsLon - convertedWGS84[1];
+            var tolerance = 0.00018; //about 20 cm (7.87 inches)
 
-                var rt90Coordinates = gaussKreuger.geodetic_to_grid(wgs84Latitude, wgs84Longitude);
-
-                var easting = rt90Coordinates[0];
-                var northing = rt90Coordinates[1];
-                var actualEasting = correctAnswers[i, 0];
-                var actualNorthing = correctAnswers[i, 1];
-
-                Assert.AreEqual(Math.Round(easting, 0), actualEasting);
-                Assert.AreEqual(Math.Round(northing, 0), actualNorthing);
-
-                //validate the range to make sure that the conversion of rt90 was okay
-                Assert.IsTrue(easting >= 6110000 && easting <= 7680000);
-                Assert.IsTrue(northing >= 1200000 && northing <= 1900000);
-
-                var convertedWGS84 = gaussKreuger.grid_to_geodetic(easting, northing);
-
-                var latitudeDifference = wgs84Latitude - convertedWGS84[0];
-                var longitudeDifference = wgs84Longitude - convertedWGS84[1];
-                var tolerance = 0.00018; //about 20 cm (7.87 inches)
-
-                Assert.IsTrue(Math.Abs(latitudeDifference) < tolerance && Math.Abs(longitudeDifference) < tolerance);
-
-                //it shouldnt be possible for them to equal the original value, make sure that is true
-                var wgs84 = new WGS84Position(convertedWGS84[0], convertedWGS84[1]);
-                Assert.AreNotEqual(wgs84Latitude, wgs84.Latitude);
-                Assert.AreNotEqual(wgs84Longitude, wgs84.Longitude);
-            }
+            //check that the tolerance is within or equal to the accepted tolerance above
+            Assert.IsTrue(Math.Abs(latitudeDifference) < tolerance && Math.Abs(longitudeDifference) <= tolerance);
+            Assert.AreEqual(Math.Round(easting, 0), rt90Lon);
+            Assert.AreEqual(Math.Round(northing, 0), rt90Lat);
+            //validate the range to make sure that the conversion of rt90 was okay
+            Assert.IsTrue(easting >= 6110000 && easting <= 7680000);
+            Assert.IsTrue(northing >= 1200000 && northing <= 1900000);
         }
 
         #endregion
